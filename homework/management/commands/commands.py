@@ -1,3 +1,4 @@
+from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from homework.models import Category, Product
 
@@ -12,23 +13,26 @@ class Command(BaseCommand):
         Category.objects.all().delete()
         group, _ = Product.objects.get_or_create(name="")
 
+        self.stdout.write('фикстуры')
+        call_command('loaddata', 'homework_fixture.json')
+
         test = [
             {"first_name": "Арбуз", "description": "Зеленый"},
             {"first_name": "Арбуз", "description": "Красный"},
             {"first_name": "Арбуз", "description": "Желтый"},
         ]
 
-        for student_data in test:
-            test, created = Product.objects.get_or_create(**student_data)
+        for i in test:
+            test, created = Product.objects.get_or_create(**i)
             if created:
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f"Successfully added student: {test.first_name} {test.last_name}"
+                        f"Successfully added student: {test.first_name} {test.description}"
                     )
                 )
             else:
                 self.stdout.write(
                     self.style.WARNING(
-                        f"Student already exists: {test.first_name} {test.last_name}"
+                        f"Student already exists: {test.first_name} {test.description}"
                     )
                 )
