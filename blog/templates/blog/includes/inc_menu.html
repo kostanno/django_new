@@ -1,0 +1,53 @@
+<nav>
+    <ul style="list-style-type: none; padding: 0; margin: 0; background: #333; overflow: hidden;">
+        <li style="float: left;">
+            <a href="{% url 'blog:post_list' %}"
+               style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none;">
+                Главная
+            </a>
+        </li>
+        <li style="float: left;">
+            <a href="{% url 'blog:post_create' %}"
+               style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none;">
+                Создать статью
+            </a>
+        </li>
+        <li style="float: left;">
+            <a href="/admin/"
+               style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none;">
+                Админка
+            </a>
+        </li>
+        {% if request.resolver_match.url_name == 'post_detail' and post %}
+        <li style="float: right;">
+            <a href="{% url 'blog:post_delete' post.pk %}"
+               style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none; background: #dc3545;">
+                Удалить
+            </a>
+        </li>
+        <li style="float: right;">
+            <a href="{% url 'blog:post_update' post.pk %}"
+               style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none; background: #007bff;">
+                Редактировать
+            </a>
+        </li>
+        {% endif %}
+        {% if request.resolver_match.url_name == 'post_update' or request.resolver_match.url_name == 'post_create' %}
+        <li style="float: right;">
+            <a href="{% url 'blog:post_list' %}"
+               style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none; background: #6c757d;">
+                Отмена
+            </a>
+        </li>
+        {% endif %}
+
+        {% if request.resolver_match.url_name == 'post_delete' %}
+        <li style="float: right;">
+            <a href="{% url 'blog:post_detail' object.pk %}"
+               style="display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none; background: #6c757d;">
+                Назад
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>

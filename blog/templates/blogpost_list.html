@@ -1,0 +1,129 @@
+{% extends 'blog/base.html' %}
+{% block title %}Список статей - Мой Блог{% endblock %}
+{% block content %}
+<h1>Статьи блога</h1>
+{% if user.is_authenticated %}
+<div style="background: #e9ecef; padding: 10px; margin-bottom: 20px; border-radius: 5px;">
+    <h3>Панель управления</h3>
+    <a href="{% url 'blog:post_create' %}" style="background: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 3px;">
+        + Создать новую статью
+    </a>
+    <a href="/admin/blog/blogpost/" style="background: #17a2b8; color: white; padding: 10px 15px; text-decoration: none; border-radius: 3px; margin-left: 10px;">
+        Управление статьями
+    </a>
+</div>
+{% endif %}
+
+<div style="margin-bottom: 20px;">
+    <h3>Всего статей: {{ posts.count }}</h3>
+</div>
+
+{% if posts %}
+    {% for post in posts %}
+    <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+        <div style="display: flex; align-items: flex-start;">
+            {% if post.preview %}
+            <div style="margin-right: 20px; flex-shrink: 0;">
+                <img src="{{ post.preview.url }}" alt="{{ post.title }}" style="width: 200px; height: 150px; object-fit: cover; border-radius: 5px;">
+            </div>
+            {% endif %}
+
+            <div style="flex-grow: 1;">
+                <h2 style="margin-top: 0;">
+                    <a href="{% url 'blog:post_detail' post.pk %}" style="text-decoration: none; color: #007bff;">
+                        {{ post.title }}
+                    </a>
+                </h2>
+
+                <div style="color: #6c757d; font-size: 0.9em; margin-bottom: 10px;">
+                    <span style="margin-right: 15px;">
+                        📅 {{ post.created_at|date:"d.m.Y H:i" }}
+                    </span>
+                    <span style="margin-right: 15px;">
+                        👁 {{ post.views_count }} просмотров
+                    </span>
+                    <span style="padding: 3px 8px; background: {% if post.is_published %}#28a745{% else %}#dc3545{% endif %}; color: white; border-radius: 3px;">
+                        {% if post.is_published %}Опубликовано{% else %}Черновик{% endif %}
+                    </span>
+                </div>
+
+                <p style="line-height: 1.6;">
+                    {{ post.content|truncatewords:50|safe }}
+                </p>
+
+                <div style="margin-top: 10px;">
+                    <a href="{% url 'blog:post_detail' post.pk %}"
+                       style="background: #007bff; color: white; padding: 8px 12px; text-decoration: none; border-radius: 3px; font-size: 0.9em;">
+                        Читать далее →
+                    </a>
+
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'blog:post_update' post.pk %}"
+                       style="background: #17a2b8; color: white; padding: 8px 12px; text-decoration: none; border-radius: 3px; font-size: 0.9em; margin-left: 5px;">
+                        Редактировать
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% if is_paginated %}
+    <div style="text-align: center; margin-top: 30px;">
+        <nav>
+            <ul style="list-style-type: none; padding: 0; display: inline-flex;">
+                {% if page_obj.has_previous %}
+                <li style="margin: 0 5px;">
+                    <a href="?page={{ page_obj.previous_page_number }}"
+                       style="padding: 8px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 3px;">
+                        ← Назад
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li style="margin: 0 5px;">
+                        <span style="padding: 8px 12px; background: #6c757d; color: white; border-radius: 3px;">
+                            {{ num }}
+                        </span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li style="margin: 0 5px;">
+                        <a href="?page={{ num }}"
+                           style="padding: 8px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 3px;">
+                            {{ num }}
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li style="margin: 0 5px;">
+                    <a href="?page={{ page_obj.next_page_number }}"
+                       style="padding: 8px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 3px;">
+                        Вперед →
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        <p style="margin-top: 10px; color: #6c757d;">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </p>
+    </div>
+    {% endif %}
+
+{% else %}
+    <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 5px;">
+        <h3 style="color: #6c757d;">Статьи не найдены</h3>
+        <p>Пока нет опубликованных статей в блоге.</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'blog:post_create' %}"
+           style="display: inline-block; background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; margin-top: 10px;">
+            Создать первую статью
+        </a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

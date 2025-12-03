@@ -1,12 +1,15 @@
-from django.shortcuts import render, get_object_or_404
-from homework.models import Product
+from django.views.generic import ListView, DetailView
+from .models import Product
 
-def product_list(request):
-    product = Product.objects.all()
-    context = {"product" : product}
-    return render(request, 'prod.html', context)
 
-def product_detail(request, pk):
-    product_1 = get_object_or_404(Product, pk=pk)
-    context = {"product_1":product_1}
-    return render(request, "product_detail.html", context)
+class ProductListView(ListView):
+    model = Product
+    template_name = 'prod.html'
+    context_object_name = 'product'
+
+
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'product_detail.html'
+    context_object_name = 'product_1'
+    pk_url_kwarg = 'pk'
