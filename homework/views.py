@@ -1,6 +1,6 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib import messages
 from .models import Product
 from .forms import ProductForm
@@ -50,3 +50,13 @@ class ProductUpdateView(UpdateView):
     def form_invalid(self, form):
         messages.error(self.request, 'исправьте ошибки')
         return super().form_invalid(form)
+
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'products/product_confirm_delete.html'
+    success_url = reverse_lazy('product_list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'товар успешно удален!')
+        return super().delete(request, *args, **kwargs)
