@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from Product.models import Product
+from Product.models import Product, Category
 
 FORBIDDEN_WORDS = [
     'казино',
@@ -34,6 +34,10 @@ class ProductForm(forms.ModelForm):
             'category': 'Категория',
             'price': 'Цена (руб.)'
         }
+        fields_1 = [
+            'name', 'description', 'image', 'category',
+            'price', 'publication_status', 'owner'
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -70,3 +74,62 @@ class ProductForm(forms.ModelForm):
         if price < 0:
             raise ValidationError('Цена не может быть отрицательной! ')
         return price
+
+
+    class Meta:
+        model = Product
+        fields = [
+            'name', 'description', 'image', 'category',
+            'price', 'publication_status', 'owner'
+        ]
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'category': forms.Select(attrs={'class': 'form-control'}),
+            'publication_status': forms.Select(attrs={'class': 'form-control'}),
+            'owner': forms.Select(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'name': _('Название'),
+            'description': _('Описание'),
+            'image': _('Изображение'),
+            'category': _('Категория'),
+            'price': _('Цена'),
+            'publication_status': _('Статус публикации'),
+            'owner': _('Владелец'),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+        if self.request and not (
+                self.request.user.is_superuser or
+                self.request.user.has_perm('products.can_edit_any_product')
+        ):
+            self.fields['owner'].widget = forms.HiddenInput()
+            if self.instance and self.instance.pk:
+                self.fields['owner'].disabled = True
+            self.fields['publication_status'].disabled = True
+            self.fields['publication_status'].widget = forms.HiddenInput()
+
+
+class ProductFilterForm(forms.Form):
+
+    STATUS_CHOICES = [('', 'Все статусы')] + list(Product.PublicationStatus.choices)
+    status = forms.ChoiceField(
+        choices=STATUS_CHOICES,
+        required=False,
+        label=_('Статус публикации')
+    )
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        required=False,
+        label=_('Категория'),
+        empty_label=_('Все категории')
+    )
+    search = forms.CharField(
+        required=False,
+        label=_('Поиск'),
+        widget=forms.TextInput(attrs={'placeholder': _('Поиск по названию')})
+    )
