@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from homework.models import Product
+from Product.models import Product
 
 FORBIDDEN_WORDS = [
     'казино',

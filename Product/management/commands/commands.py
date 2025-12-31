@@ -1,6 +1,6 @@
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
-from homework.models import Category, Product
+from Product.models import Category, Product
 
 
 class Command(BaseCommand):
