@@ -1,0 +1,57 @@
+{% extends 'blog/base.html' %}
+{% block title %}Удаление статьи: {{ object.title }} - Мой Блог{% endblock %}
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto; text-align: center;">
+
+    <div style="font-size: 4em; color: #dc3545; margin-bottom: 20px;">
+        ⚠️
+    </div>
+
+    <h1 style="color: #dc3545; margin-bottom: 20px;">Подтверждение удаления</h1>
+
+    <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin-bottom: 30px; text-align: left;">
+        <h3 style="margin-top: 0; color: #721c24;">Вы собираетесь удалить статью:</h3>
+        <p style="font-size: 1.2em; margin: 10px 0;"><strong>"{{ object.title }}"</strong></p>
+
+        <div style="color: #721c24; font-size: 0.9em;">
+            <p>📅 Дата создания: {{ object.created_at|date:"d.m.Y H:i" }}</p>
+            <p>👁 Просмотров: {{ object.views_count }}</p>
+            <p>📝 Статус: {% if object.is_published %}Опубликована{% else %}Черновик{% endif %}</p>
+        </div>
+    </div>
+
+
+    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin-bottom: 30px;">
+        <h4 style="color: #856404; margin-top: 0;">⚠️ Внимание!</h4>
+        <p style="color: #856404; margin: 0;">
+            Это действие необратимо. После удаления восстановить статью будет невозможно.
+        </p>
+    </div>
+    <form method="post" style="margin-bottom: 30px;">
+        {% csrf_token %}
+        <div style="display: flex; justify-content: center; gap: 15px;">
+            <button type="submit"
+                    style="padding: 12px 25px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 1.1em; display: flex; align-items: center;">
+                🗑️ Удалить статью
+            </button>
+
+            <a href="{% url 'blog:post_detail' object.pk %}"
+               style="padding: 12px 25px; background: #6c757d; color: white; text-decoration: none; border-radius: 3px; display: inline-flex; align-items: center;">
+                ← Отмена
+            </a>
+        </div>
+    </form>
+
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+        <h4 style="color: #495057; margin-top: 0;">Другие варианты:</h4>
+        <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <a href="{% url 'blog:post_update' object.pk %}"
+               style="padding: 8px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 3px; font-size: 0.9em;">
+            </a>
+            <a href="{% url 'blog:post_list' %}"
+               style="padding: 8px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 3px; font-size: 0.9em;">
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
