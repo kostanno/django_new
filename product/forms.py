@@ -1,8 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
-
-from Product.models import Product, Category
-
+from django.utils.translation import gettext_lazy as _
+from product.models import Product, Category
 FORBIDDEN_WORDS = [
     'казино',
     'криптовалюта',
@@ -91,7 +90,7 @@ class ProductForm(forms.ModelForm):
             'owner': forms.Select(attrs={'class': 'form-control'}),
         }
         labels = {
-            'name': _('Название'),
+            'name':_('Название'),
             'description': _('Описание'),
             'image': _('Изображение'),
             'category': _('Категория'),

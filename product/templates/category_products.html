@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Продукты в категории{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Сайдбар с категориями -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Категории</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        {% for category in categories %}
+                            <li class="mb-2">
+                                <a href="{% url 'category_products' category.slug %}"
+                                   class="{% if category.slug == current_category_slug %}font-weight-bold text-primary{% endif %}">
+                                    {{ category.name }}
+                                </a>
+                                {% if category.children.all %}
+                                    <ul class="list-unstyled ml-3">
+                                        {% for child in category.children.all %}
+                                            <li>
+                                                <a href="{% url 'category_products' child.slug %}"
+                                                   class="{% if child.slug == current_category_slug %}font-weight-bold text-primary{% endif %}">
+                                                    {{ child.name }}
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Список продуктов -->
+        <div class="col-md-9">
+            <h2>Продукты</h2>
+
+            {% if products %}
+                <div class="row">
+                    {% for product in products %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}"
+                                         class="card-img-top"
+                                         alt="{{ product.name }}"
+                                         style="height: 200px; object-fit: cover;">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ product.name }}</h5>
+                                    <p class="card-text">{{ product.description|truncatewords:20 }}</p>
+                                    <p class="font-weight-bold">Цена: {{ product.price }} руб.</p>
+                                    <a href="{% url 'product_detail' product.id %}"
+                                       class="btn btn-primary">Подробнее</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    В этой категории пока нет продуктов.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

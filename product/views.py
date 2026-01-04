@@ -2,11 +2,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse_lazy
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from product.forms import ProductForm
+from product.models import Product
+from product.services import get_products_by_category, get_category_tree
 
-from Product.forms import ProductForm
-from Product.models import Product
 
 class ProductListView(ListView):
     """Список всех товаров (доступно всем)"""
@@ -57,7 +59,7 @@ def product_delete_view(request, pk):
     return render(request, 'products/product_confirm_delete.html', {'product': product})
 
 
-# Альтернативный вариант с классами и миксинами
+
 class ProductCreateView(LoginRequiredMixin, CreateView):
     """Создание товара через класс (только для авторизованных)"""
     model = Product
@@ -68,3 +70,27 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         messages.success(self.request, 'Товар успешно создан!')
         return super().form_valid(form)
+
+@cache_page(60 * 15)
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    context = {
+        'product': product,
+        'related_products': Product.objects.filter(
+            category=product.category
+        ).exclude(id=product.id)[:4]
+    }
+    return render(request, 'products/product_detail.html', context)
+
+
+def category_products(request, category_slug):
+    products = get_products_by_category(category_slug)
+    categories = get_category_tree()
+
+    context = {
+        'products': products,
+        'categories': categories,
+        'current_category_slug': category_slug,
+    }
+
+    return render(request, 'products/category_products.html', context)

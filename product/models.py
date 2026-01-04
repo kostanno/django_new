@@ -57,7 +57,15 @@ class Product(models.Model):
         max_length=20,
         choices=PublicationStatus.choices,
         default=PublicationStatus.DRAFT,
-        verbose_name='Статус публикации'
+    )
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        verbose_name='Владелец',
+        related_name='products',
+        null=True,
+        blank=True
     )
 
     owner = models.ForeignKey(
