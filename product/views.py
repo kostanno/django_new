@@ -22,7 +22,6 @@ class ProductListView(ListView):
 def product_create_view(request):
     """Создание нового товара (только для авторизованных)"""
     if request.method == 'POST':
-        # Логика создания товара
         pass
     return render(request, 'products/product_form.html')
 
@@ -38,11 +37,8 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
 def product_update_view(request, pk):
     """Редактирование товара (только для авторизованных)"""
     product = get_object_or_404(Product, pk=pk)
-
     if request.method == 'POST':
-        # Логика обновления товара
         pass
-
     return render(request, 'products/product_form.html', {'product': product})
 
 
