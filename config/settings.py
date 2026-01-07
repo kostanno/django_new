@@ -90,6 +90,8 @@ DATABASES = {
     }
 }
 
+
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
@@ -102,10 +104,11 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'BACKEND': os.getenv('BACKEND'),
+        'LOCATION': os.getenv('LOCATION'),
     }
 }
+CACHE_ENABLED = True
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

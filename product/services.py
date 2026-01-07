@@ -33,16 +33,10 @@ def get_cached_products_by_category(category_slug, force_refresh=False):
     Получение продуктов по категории с низкоуровневым кешированием
     """
     cache_key = f'products_category_{category_slug}'
-
-    # Принудительное обновление кеша
     if force_refresh:
         cache.delete(cache_key)
-
-    # Пробуем получить данные из кеша
     products = cache.get(cache_key)
-
     if products is None:
-        # Данных нет в кеше, получаем из БД
         products = Product.objects.filter(
             category__slug=category_slug,
             is_available=True

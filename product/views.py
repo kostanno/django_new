@@ -1,96 +1,70 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.urls import reverse_lazy
+from django.views import View
+from django.shortcuts import render, get_object_or_404
+from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from django.views.generic import ListView, DetailView, CreateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from product.forms import ProductForm
-from product.models import Product
-from product.services import get_products_by_category, get_category_tree
+from .models import Product
+from .services import get_products_by_category, get_category_tree
+from .utils import is_cache_enabled
 
 
-class ProductListView(ListView):
-    """Список всех товаров (доступно всем)"""
-    model = Product
-    template_name = 'products/product_list.html'
-    context_object_name = 'products'
-    paginate_by = 10
+class ProductDetailView(View):
+    @method_decorator(cache_page(60 * 15, key_prefix='product_detail'))
+    def get(self, request, product_id):
+        product = get_object_or_404(
+            Product.objects.select_related('category'),
+            id=product_id
+        )
+
+        related_products = get_related_products(product)
+        context = {
+            'product': product,
+            'related_products': related_products,
+        }
+
+        return render(request, 'products/product_detail.html', context)
+
+class CategoryProductsView(View):
+    """
+    Представление для отображения продуктов по категории
+    """
+
+    def get(self, request, category_slug):
+        products = get_products_by_category(category_slug)
+        categories = get_category_tree()
+
+        context = {
+            'products': products,
+            'categories': categories,
+            'current_category_slug': category_slug,
+            'cache_enabled': is_cache_enabled(),
+        }
+
+        return render(request, 'products/category_products.html', context)
 
 
-@login_required
-def product_create_view(request):
-    """Создание нового товара (только для авторизованных)"""
-    if request.method == 'POST':
-        # Логика создания товара
-        pass
-    return render(request, 'products/product_form.html')
+class CacheControlView(View):
+    """
+    Представление для управления кешированием (опционально)
+    """
 
+    def get(self, request):
+        context = {
+            'cache_enabled': is_cache_enabled(),
+            'cache_timeout': getattr(settings, 'CACHE_TTL', 900),
+        }
+        return render(request, 'products/cache_control.html', context)
 
-class ProductDetailView(LoginRequiredMixin, DetailView):
-    """Детальная информация о товаре (только для авторизованных)"""
-    model = Product
-    template_name = 'products/product_detail.html'
-    context_object_name = 'product'
+    def post(self, request):
+        action = request.POST.get('action')
 
+        if action == 'clear_cache':
+            from django.core.cache import cache
+            cache.clear()
+            messages.success(request, 'Кеш успешно очищен')
+        elif action == 'toggle_cache':
+            current = is_cache_enabled()
+            settings.CACHE_ENABLED = not current
+            status = 'включено' if not current else 'выключено'
+            messages.success(request, f'Кеширование {status}')
 
-@login_required
-def product_update_view(request, pk):
-    """Редактирование товара (только для авторизованных)"""
-    product = get_object_or_404(Product, pk=pk)
-
-    if request.method == 'POST':
-        # Логика обновления товара
-        pass
-
-    return render(request, 'products/product_form.html', {'product': product})
-
-
-@login_required
-def product_delete_view(request, pk):
-    """Удаление товара (только для авторизованных)"""
-    product = get_object_or_404(Product, pk=pk)
-
-    if request.method == 'POST':
-        product.delete()
-        messages.success(request, 'Товар успешно удален!')
-        return redirect('product_list')
-
-    return render(request, 'products/product_confirm_delete.html', {'product': product})
-
-
-
-class ProductCreateView(LoginRequiredMixin, CreateView):
-    """Создание товара через класс (только для авторизованных)"""
-    model = Product
-    form_class = ProductForm
-    template_name = 'products/product_form.html'
-    success_url = reverse_lazy('product_list')
-
-    def form_valid(self, form):
-        messages.success(self.request, 'Товар успешно создан!')
-        return super().form_valid(form)
-
-@cache_page(60 * 15)
-def product_detail(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    context = {
-        'product': product,
-        'related_products': Product.objects.filter(
-            category=product.category
-        ).exclude(id=product.id)[:4]
-    }
-    return render(request, 'products/product_detail.html', context)
-
-
-def category_products(request, category_slug):
-    products = get_products_by_category(category_slug)
-    categories = get_category_tree()
-
-    context = {
-        'products': products,
-        'categories': categories,
-        'current_category_slug': category_slug,
-    }
-
-    return render(request, 'products/category_products.html', context)
+        return redirect('cache_control')
