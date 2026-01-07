@@ -15,7 +15,7 @@ FORBIDDEN_WORDS = [
 ]
 
 
-class ProductForm(forms.ModelForm):
+class ProductForm_K(forms.ModelForm):
 
     class Meta:
         model = Product
@@ -74,6 +74,9 @@ class ProductForm(forms.ModelForm):
             raise ValidationError('Цена не может быть отрицательной! ')
         return price
 
+
+class ProductForm(forms.ModelForm):
+        """Форма для создания и редактирования продукта"""
 
     class Meta:
         model = Product
