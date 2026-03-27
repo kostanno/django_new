@@ -1,0 +1,118 @@
+{% extends 'blog/base.html' %}
+{% block title %}
+    {% if object %}Редактирование статьи: {{ object.title }}{% else %}Создание новой статьи{% endif %} - Мой Блог
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <h1 style="color: #333; margin-bottom: 30px;">
+        {% if object %}✏️ Редактирование статьи{% else %}📝 Создание новой статьи{% endif %}
+    </h1>
+
+    <form method="post" enctype="multipart/form-data" style="background: #f8f9fa; padding: 20px; border-radius: 5px;">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 3px; margin-bottom: 20px;">
+            <strong>Ошибки в форме:</strong>
+            <ul style="margin: 5px 0 0 20px;">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div style="margin-bottom: 20px;">
+            <label for="id_title" style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">
+                Заголовок статьи *
+            </label>
+            {{ form.title }}
+            {% if form.title.help_text %}
+            <small style="color: #6c757d; display: block; margin-top: 5px;">
+                {{ form.title.help_text }}
+            </small>
+            {% endif %}
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label for="id_content" style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">
+                Содержимое статьи *
+            </label>
+            {{ form.content }}
+            {% if form.content.help_text %}
+            <small style="color: #6c757d; display: block; margin-top: 5px;">
+                {{ form.content.help_text }}
+            </small>
+            {% endif %}
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label for="id_preview" style="display: block; margin-bottom: 5px; font-weight: bold; color: #495057;">
+                Превью-изображение
+            </label>
+            {% if object.preview %}
+            <div style="margin-bottom: 10px;">
+                <p>Текущее изображение:</p>
+                <img src="{{ object.preview.url }}" alt="Текущее превью" style="max-width: 200px; border-radius: 5px;">
+                <br>
+                <label style="font-weight: normal; margin-top: 5px; display: inline-flex; align-items: center;">
+                    <input type="checkbox" name="preview-clear" id="preview-clear_id" style="margin-right: 5px;">
+                    Удалить текущее изображение
+                </label>
+            </div>
+            {% endif %}
+            {{ form.preview }}
+            {% if form.preview.help_text %}
+            <small style="color: #6c757d; display: block; margin-top: 5px;">
+                {{ form.preview.help_text }}
+            </small>
+            {% endif %}
+        </div>
+
+        <div style="margin-bottom: 30px; background: white; padding: 15px; border-radius: 5px;">
+            <label style="display: flex; align-items: center; font-weight: bold; color: #495057;">
+                {{ form.is_published }}
+                <span style="margin-left: 10px;">Опубликовать статью</span>
+            </label>
+            <small style="color: #6c757d; display: block; margin-top: 5px;">
+                Если не отмечено, статья будет сохранена как черновик
+            </small>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button type="submit"
+                    style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 1em;">
+                {% if object %}💾 Сохранить изменения{% else %}📤 Опубликовать статью{% endif %}
+            </button>
+
+            {% if object %}
+            <a href="{% url 'blog:post_detail' object.pk %}"
+               style="padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 3px; display: inline-flex; align-items: center;">
+                ← Отмена
+            </a>
+            {% else %}
+            <a href="{% url 'blog:post_list' %}"
+               style="padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 3px; display: inline-flex; align-items: center;">
+                ← Отмена
+            </a>
+            {% endif %}
+        </div>
+    </form>
+
+    <div style="margin-top: 30px; padding: 15px; background: #e9ecef; border-radius: 5px;">
+        <h3 style="color: #495057; margin-top: 0;">📌 Подсказки:</h3>
+        <ul style="color: #6c757d;">
+            <li>Поля, отмеченные *, обязательны для заполнения</li>
+            <li>Для форматирования текста используйте простые HTML-теги</li>
+            <li>Рекомендуемый размер изображения: 1200×800 пикселей</li>
+            <li>Черновики видны только вам и администраторам</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

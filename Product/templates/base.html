@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+{% include 'includes/inc_menu.html' %}
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Меню</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-link">
+                <i class="bi bi-house-door"></i>
+                <span class="nav-text">Главная</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="bi bi-grid"></i>
+                <span class="nav-text">Категории</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="bi bi-cart-check"></i>
+                <span class="nav-text">Заказы</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="bi bi-telephone"></i>
+                <span class="nav-text">Контакты</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-person-circle me-2"></i>
+                    <span class="user-name">Пользователь</span>
+                </div>
+                <div class="dropdown-menu">
+                    <a href="#" class="dropdown-item">
+                        <i class="bi bi-person me-2"></i>Профиль
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="bi bi-box-arrow-right me-2"></i>Выход
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
