@@ -1,0 +1,94 @@
+{% extends 'blog/base.html' %}
+{% block title %}{{ post.title }} - Мой Блог{% endblock %}
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+
+    <h1 style="color: #333; margin-bottom: 10px;">{{ post.title }}</h1>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+        <div style="color: #6c757d; font-size: 0.9em;">
+            <span style="margin-right: 15px;">
+                📅 {{ post.created_at|date:"d.m.Y в H:i" }}
+            </span>
+            <span style="margin-right: 15px;">
+                👁 {{ post.views_count }} просмотров
+            </span>
+            <span style="padding: 3px 8px; background: {% if post.is_published %}#28a745{% else %}#dc3545{% endif %}; color: white; border-radius: 3px; font-size: 0.8em;">
+                {% if post.is_published %}Опубликовано{% else %}Черновик{% endif %}
+            </span>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'blog:post_update' post.pk %}"
+               style="padding: 6px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 3px; font-size: 0.9em;">
+
+            </a>
+            <a href="{% url 'blog:post_list' %}"
+               style="padding: 6px 12px; background: #6c757d; color: white; text-decoration: none; border-radius: 3px; font-size: 0.9em;">
+                ← Назад
+            </a>
+        </div>
+    </div>
+
+    {% if post.preview %}
+    <div style="text-align: center; margin-bottom: 30px;">
+        <img src="{{ post.preview.url }}"
+             alt="{{ post.title }}"
+             style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        {% if post.preview_caption %}
+        <p style="color: #6c757d; font-size: 0.9em; margin-top: 5px; font-style: italic;">
+            {{ post.preview_caption }}
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div style="line-height: 1.8; font-size: 1.1em; color: #333;">
+        {{ post.content|linebreaks|safe }}
+    </div>
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+        <h3 style="color: #6c757d; margin-bottom: 15px;">Информация о статье</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                <h4 style="margin-top: 0; color: #495057;">Дата создания</h4>
+                <p style="margin: 0; font-size: 1.2em;">{{ post.created_at|date:"d.m.Y" }}</p>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                <h4 style="margin-top: 0; color: #495057;">Время создания</h4>
+                <p style="margin: 0; font-size: 1.2em;">{{ post.created_at|date:"H:i" }}</p>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                <h4 style="margin-top: 0; color: #495057;">Просмотры</h4>
+                <p style="margin: 0; font-size: 1.2em;">{{ post.views_count }}</p>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                <h4 style="margin-top: 0; color: #495057;">Статус</h4>
+                <p style="margin: 0; font-size: 1.2em;">
+                    <span style="color: {% if post.is_published %}#28a745{% else %}#dc3545{% endif %};">
+                        {% if post.is_published %}Опубликовано{% else %}Черновик{% endif %}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+        <div>
+            {% if previous_post %}
+            <a href="{% url 'blog:post_detail' previous_post.pk %}"
+               style="padding: 10px 15px; background: #6c757d; color: white; text-decoration: none; border-radius: 3px; display: inline-flex; align-items: center;">
+                ← {{ previous_post.title|truncatechars:30 }}
+            </a>
+            {% endif %}
+        </div>
+
+        <div>
+            {% if next_post %}
+            <a href="{% url 'blog:post_detail' next_post.pk %}"
+               style="padding: 10px 15px; background: #6c757d; color: white; text-decoration: none; border-radius: 3px; display: inline-flex; align-items: center;">
+                {{ next_post.title|truncatechars:30 }} →
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
